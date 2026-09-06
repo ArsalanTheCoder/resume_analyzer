@@ -13,7 +13,7 @@ from prompts import ANALYSIS_SYSTEM_PROMPT, build_analysis_input
 
 load_dotenv()
 
-XAI_BASE_URL = "https://api.x.ai/v1"
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 
 class AnalysisError(Exception):
@@ -104,16 +104,17 @@ class ResumeAnalysis(BaseModel):
 
 
 def _client() -> OpenAI:
-    """Create an OpenAI client configured for xAI."""
-    api_key = os.getenv("XAI_API_KEY")
+    """Create an OpenAI client configured for Groq."""
+    api_key = os.getenv("GROQ_API_KEY")
+
     if not api_key:
         raise AnalysisError(
-            "XAI_API_KEY is missing. Add it to your .env file and restart Streamlit."
+            "GROQ_API_KEY is missing. Add it to your .env file or Streamlit Secrets."
         )
 
     return OpenAI(
         api_key=api_key,
-        base_url=XAI_BASE_URL,
+        base_url="https://api.groq.com/openai/v1",
         timeout=120.0,
         max_retries=2,
     )
