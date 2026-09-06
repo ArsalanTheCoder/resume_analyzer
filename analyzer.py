@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import json
 from typing import Literal
 
 from dotenv import load_dotenv
@@ -122,7 +123,13 @@ def _client() -> OpenAI:
 
 def analyze_resume(resume_text: str, job_description: str) -> ResumeAnalysis:
     """Send resume and job description to Grok and return validated structured output."""
-    model = os.getenv("GROK_MODEL", "grok-4.6").strip() or "grok-4.6"
+    model = (
+        os.getenv(
+            "GROQ_MODEL",
+            "openai/gpt-oss-120b",
+        ).strip()
+        or "openai/gpt-oss-120b"
+    )
 
     if not resume_text.strip():
         raise AnalysisError("Resume text is empty.")
@@ -132,11 +139,29 @@ def analyze_resume(resume_text: str, job_description: str) -> ResumeAnalysis:
     client = _client()
 
     try:
-        response = client.responses.parse(
+        response = client.chat.completions.create(
             model=model,
-            instructions=ANALYSIS_SYSTEM_PROMPT,
-            input=build_analysis_input(resume_text, job_description),
-            text_format=ResumeAnalysis,
+            messages=[
+                {
+                    "role": "system",
+                    "content": ANALYSIS_SYSTEM_PROMPT,
+                },
+                {
+                    "role": "user",
+                    "content": build_analysis_input(
+                        resume_text,
+                        job_description,
+                    ),
+                },
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "resume_analysis",
+                    "strict": True,
+                    "schema": ResumeAnalysis.model_json_schema(),
+                },
+            },
         )
     except AuthenticationError as exc:
         raise AnalysisError(
