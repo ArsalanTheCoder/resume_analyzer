@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import html
-import textwrap
 
 import streamlit as st
 
@@ -12,7 +11,7 @@ from resume_parser import ResumeParseError, extract_resume_text
 
 
 # ============================================================
-# PAGE CONFIGURATION
+# PAGE CONFIG
 # ============================================================
 
 st.set_page_config(
@@ -24,42 +23,35 @@ st.set_page_config(
 
 
 # ============================================================
-# HTML HELPER
-# ============================================================
-
-def render_html(content: str) -> None:
-    """Render multiline HTML safely without indentation issues."""
-    st.markdown(
-        textwrap.dedent(content).strip(),
-        unsafe_allow_html=True,
-    )
-
-
-# ============================================================
 # CUSTOM CSS
 # ============================================================
 
-st.markdown(
+st.html(
     """
     <style>
 
-    /* ======================================================
+    /* ========================================================
        GLOBAL
-    ====================================================== */
+    ======================================================== */
 
     .stApp {
         background:
             radial-gradient(
-                circle at top left,
+                circle at 0% 0%,
                 rgba(99, 102, 241, 0.07),
-                transparent 28%
+                transparent 25%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(14, 165, 233, 0.05),
+                transparent 25%
             ),
             #f8fafc;
     }
 
     .main .block-container {
-        max-width: 1250px;
-        padding-top: 2.2rem;
+        max-width: 1220px;
+        padding-top: 2rem;
         padding-bottom: 4rem;
     }
 
@@ -67,66 +59,64 @@ st.markdown(
         background: transparent;
     }
 
+    /* Hide default Streamlit footer */
     footer {
         visibility: hidden;
     }
 
 
-    /* ======================================================
+    /* ========================================================
        HERO
-    ====================================================== */
+    ======================================================== */
 
     .hero {
         text-align: center;
-        padding: 2rem 0 3rem;
+        padding: 2rem 0 3rem 0;
     }
 
     .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
+        display: inline-block;
         padding: 0.45rem 0.9rem;
         border-radius: 999px;
         background: #eef2ff;
-        border: 1px solid #e0e7ff;
+        border: 1px solid #c7d2fe;
         color: #4f46e5;
         font-size: 0.8rem;
-        font-weight: 750;
+        font-weight: 700;
         letter-spacing: 0.02em;
         margin-bottom: 1rem;
     }
 
     .hero-title {
         margin: 0;
+        color: #101828;
         font-size: 3.5rem;
         line-height: 1.05;
         font-weight: 850;
         letter-spacing: -0.055em;
-        color: #101828;
     }
 
-    .hero-title span {
+    .hero-title-accent {
         color: #4f46e5;
     }
 
     .hero-subtitle {
         max-width: 760px;
-        margin: 1rem auto 0;
+        margin: 1rem auto 0 auto;
         color: #667085;
         font-size: 1.05rem;
         line-height: 1.75;
     }
 
 
-    /* ======================================================
-       SECTION TITLES
-    ====================================================== */
+    /* ========================================================
+       SECTION
+    ======================================================== */
 
-    .section-heading {
+    .section-title {
         margin-top: 1.8rem;
         color: #101828;
         font-size: 1.25rem;
-        line-height: 1.3;
         font-weight: 800;
     }
 
@@ -139,85 +129,89 @@ st.markdown(
     }
 
 
-    /* ======================================================
+    /* ========================================================
        UPLOAD CARD
-    ====================================================== */
+    ======================================================== */
 
     .upload-card {
         background: #ffffff;
         border: 1px solid #e4e7ec;
         border-radius: 20px;
         padding: 1.4rem;
+        margin-bottom: 1rem;
         box-shadow:
-            0 12px 30px rgba(16, 24, 40, 0.05),
-            0 2px 6px rgba(16, 24, 40, 0.03);
+            0 10px 25px rgba(16, 24, 40, 0.04),
+            0 2px 6px rgba(16, 24, 40, 0.02);
     }
 
-    .upload-card-header {
+    .upload-row {
         display: flex;
         align-items: center;
-        gap: 0.8rem;
-        margin-bottom: 0.4rem;
+        gap: 1rem;
     }
 
     .upload-icon {
-        width: 42px;
-        height: 42px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
         display: flex;
-        align-items: center;
         justify-content: center;
-        border-radius: 12px;
+        align-items: center;
+        border-radius: 13px;
         background: #eef2ff;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
     }
 
     .upload-title {
         color: #1d2939;
         font-size: 1rem;
-        font-weight: 750;
+        font-weight: 800;
     }
 
     .upload-description {
+        margin-top: 0.2rem;
         color: #667085;
         font-size: 0.85rem;
-        line-height: 1.55;
-        margin-left: 3.2rem;
+        line-height: 1.5;
     }
 
 
-    /* ======================================================
+    /* ========================================================
+       FILE STATUS
+    ======================================================== */
+
+    .file-status {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        background: #ecfdf3;
+        border: 1px solid #abefc6;
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        margin-top: 0.8rem;
+        color: #067647;
+        font-size: 0.87rem;
+    }
+
+
+    /* ========================================================
        FILE UPLOADER
-    ====================================================== */
+    ======================================================== */
 
     [data-testid="stFileUploader"] {
-        margin-top: 1rem;
+        margin-top: 0.9rem;
     }
 
     [data-testid="stFileUploaderDropzone"] {
+        background: #ffffff !important;
         border: 1px dashed #a5b4fc !important;
         border-radius: 16px !important;
-        background: #fafaff !important;
     }
 
 
-    /* ======================================================
-       RESUME STATUS
-    ====================================================== */
-
-    .file-status {
-        margin-top: 1rem;
-        padding: 0.85rem 1rem;
-        border-radius: 12px;
-        background: #f8fafc;
-        border: 1px solid #e4e7ec;
-        color: #344054;
-        font-size: 0.88rem;
-    }
-
-
-    /* ======================================================
+    /* ========================================================
        TEXT AREA
-    ====================================================== */
+    ======================================================== */
 
     .stTextArea textarea {
         border-radius: 16px !important;
@@ -231,21 +225,19 @@ st.markdown(
     .stTextArea textarea:focus {
         border-color: #6366f1 !important;
         box-shadow:
-            0 0 0 3px rgba(99, 102, 241, 0.10) !important;
+            0 0 0 3px rgba(99, 102, 241, 0.1) !important;
     }
 
 
-    /* ======================================================
+    /* ========================================================
        ANALYZE BUTTON
-    ====================================================== */
+    ======================================================== */
 
     .stButton > button {
-        width: 100%;
-        min-height: 3.15rem;
+        min-height: 3.2rem;
         border-radius: 14px;
         font-size: 1rem;
-        font-weight: 750;
-        border: none;
+        font-weight: 800;
         transition:
             transform 0.15s ease,
             box-shadow 0.15s ease;
@@ -258,16 +250,16 @@ st.markdown(
     }
 
 
-    /* ======================================================
+    /* ========================================================
        SCORE CARDS
-    ====================================================== */
+    ======================================================== */
 
     .score-card {
-        height: 100%;
         background: #ffffff;
         border: 1px solid #e4e7ec;
         border-radius: 18px;
-        padding: 1.25rem;
+        padding: 1.2rem;
+        min-height: 145px;
         box-shadow:
             0 10px 25px rgba(16, 24, 40, 0.04),
             0 2px 6px rgba(16, 24, 40, 0.02);
@@ -280,16 +272,15 @@ st.markdown(
         margin-bottom: 0.6rem;
     }
 
-    .score-value {
+    .score-number {
         color: #101828;
-        font-size: 2.35rem;
+        font-size: 2.3rem;
         line-height: 1;
         font-weight: 850;
         letter-spacing: -0.05em;
-        margin-bottom: 0.7rem;
     }
 
-    .score-value span {
+    .score-max {
         color: #98a2b3;
         font-size: 0.95rem;
         font-weight: 650;
@@ -297,9 +288,9 @@ st.markdown(
     }
 
 
-    /* ======================================================
-       RESULT CARDS
-    ====================================================== */
+    /* ========================================================
+       RESULT CARD
+    ======================================================== */
 
     .result-card {
         background: #ffffff;
@@ -315,135 +306,130 @@ st.markdown(
         color: #101828;
         font-size: 1rem;
         font-weight: 800;
-        margin-bottom: 0.25rem;
     }
 
     .result-card-description {
         color: #667085;
         font-size: 0.84rem;
         line-height: 1.55;
+        margin-top: 0.3rem;
     }
 
 
-    /* ======================================================
+    /* ========================================================
        BADGES
-    ====================================================== */
+    ======================================================== */
 
     .badge {
-        display: inline-flex;
-        align-items: center;
+        display: inline-block;
         padding: 0.28rem 0.65rem;
         border-radius: 999px;
         font-size: 0.74rem;
         font-weight: 750;
-        border: 1px solid transparent;
     }
 
     .badge-high {
-        color: #b42318;
         background: #fef3f2;
-        border-color: #fecdca;
+        border: 1px solid #fecdca;
+        color: #b42318;
     }
 
     .badge-medium {
-        color: #b54708;
         background: #fffaeb;
-        border-color: #fedf89;
+        border: 1px solid #fedf89;
+        color: #b54708;
     }
 
     .badge-low {
-        color: #027a48;
         background: #ecfdf3;
-        border-color: #abefc6;
+        border: 1px solid #abefc6;
+        color: #027a48;
     }
 
 
-    /* ======================================================
-       KEYWORDS
-    ====================================================== */
+    /* ========================================================
+       KEYWORD BOX
+    ======================================================== */
 
-    .keyword-container {
+    .keyword-box {
         background: #ffffff;
         border: 1px solid #e4e7ec;
         border-radius: 18px;
-        padding: 1.2rem;
-        min-height: 150px;
+        padding: 1.25rem;
+        min-height: 155px;
         box-shadow:
             0 8px 24px rgba(16, 24, 40, 0.035);
     }
 
     .keyword-title {
         color: #344054;
-        font-size: 0.86rem;
+        font-size: 0.88rem;
         font-weight: 800;
         margin-bottom: 0.7rem;
     }
 
     .keyword {
         display: inline-block;
-        margin: 0.15rem 0.12rem;
-        padding: 0.38rem 0.6rem;
+        margin: 0.15rem;
+        padding: 0.35rem 0.55rem;
         border-radius: 8px;
         background: #f8fafc;
         border: 1px solid #e4e7ec;
         color: #344054;
         font-size: 0.76rem;
-        font-weight: 550;
     }
 
 
-    /* ======================================================
+    /* ========================================================
        VERDICT
-    ====================================================== */
+    ======================================================== */
 
     .verdict-card {
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
-        padding: 1.7rem;
-        border-radius: 22px;
-        border: 1px solid #c7d2fe;
         background:
             linear-gradient(
                 135deg,
                 #eef2ff 0%,
                 #ffffff 100%
             );
+        border: 1px solid #c7d2fe;
+        border-radius: 22px;
+        padding: 1.7rem;
         box-shadow:
             0 12px 30px rgba(79, 70, 229, 0.08);
     }
 
     .verdict-label {
         color: #6366f1;
-        font-size: 0.76rem;
+        font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.1em;
     }
 
     .verdict-title {
-        margin: 0.4rem 0 0.7rem;
         color: #101828;
-        font-size: 2.1rem;
-        line-height: 1.15;
+        font-size: 2rem;
         font-weight: 850;
         letter-spacing: -0.04em;
+        margin-top: 0.4rem;
     }
 
     .verdict-summary {
-        color: #475467;
-        font-size: 0.95rem;
-        line-height: 1.7;
         max-width: 850px;
+        color: #475467;
+        line-height: 1.7;
+        font-size: 0.95rem;
+        margin-top: 0.65rem;
     }
 
 
-    /* ======================================================
+    /* ========================================================
        FOOTER
-    ====================================================== */
+    ======================================================== */
 
     .custom-footer {
         margin-top: 3rem;
-        padding-top: 1.3rem;
+        padding-top: 1.25rem;
         border-top: 1px solid #e4e7ec;
         text-align: center;
         color: #98a2b3;
@@ -451,8 +437,7 @@ st.markdown(
     }
 
     </style>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 
@@ -460,45 +445,22 @@ st.markdown(
 # HELPER FUNCTIONS
 # ============================================================
 
-def show_score_card(
-    label: str,
-    score: int,
-    explanation: str,
-) -> None:
-    """Display a score card with progress."""
-
-    render_html(
-        f"""
-        <div class="score-card">
-            <div class="score-label">
-                {html.escape(label)}
-            </div>
-
-            <div class="score-value">
-                {score}<span>/100</span>
-            </div>
-        </div>
-        """
-    )
-
-    st.progress(
-        score / 100,
-        text=explanation,
-    )
+def render_html(content: str) -> None:
+    """Render custom HTML using Streamlit's native HTML component."""
+    st.html(content)
 
 
-def get_badge_html(value: str) -> str:
-    """Create a badge based on High/Medium/Low."""
+def badge(value: str) -> str:
+    """Return HTML for a High/Medium/Low badge."""
 
     safe_value = html.escape(value)
-    normalized = value.lower()
 
     badge_class = {
         "high": "badge-high",
         "medium": "badge-medium",
         "low": "badge-low",
     }.get(
-        normalized,
+        value.lower(),
         "badge-medium",
     )
 
@@ -509,28 +471,51 @@ def get_badge_html(value: str) -> str:
     )
 
 
-def display_keywords(
+def score_card(
+    label: str,
+    score: int,
+) -> None:
+    """Display a modern score card."""
+
+    safe_label = html.escape(label)
+
+    render_html(
+        f"""
+        <div class="score-card">
+
+            <div class="score-label">
+                {safe_label}
+            </div>
+
+            <div class="score-number">
+                {score}
+                <span class="score-max">/100</span>
+            </div>
+
+        </div>
+        """
+    )
+
+
+def keyword_pills(
     keywords: list[str],
 ) -> None:
-    """Display keywords as pills."""
+    """Render keywords as HTML pills."""
 
     if not keywords:
         st.caption("No keywords identified.")
         return
 
-    keyword_html = ""
+    content = ""
 
     for keyword in keywords:
-        keyword_html += (
-            f'<span class="keyword">'
+        content += (
+            '<span class="keyword">'
             f"{html.escape(keyword)}"
-            f"</span>"
+            "</span>"
         )
 
-    st.markdown(
-        keyword_html,
-        unsafe_allow_html=True,
-    )
+    render_html(content)
 
 
 # ============================================================
@@ -545,15 +530,18 @@ render_html(
             ✦ AI-Powered Resume Analysis
         </div>
 
-        <h1 class="hero-title">
-            AI Resume <span>Analyzer</span>
-        </h1>
+        <div class="hero-title">
+            AI Resume
+            <span class="hero-title-accent">
+                Analyzer
+            </span>
+        </div>
 
-        <p class="hero-subtitle">
+        <div class="hero-subtitle">
             Compare your resume against a specific job description
             and discover your strengths, skill gaps, ATS keywords,
             resume problems, and practical recommendations.
-        </p>
+        </div>
 
     </div>
     """
@@ -561,12 +549,12 @@ render_html(
 
 
 # ============================================================
-# RESUME UPLOAD
+# SECTION 1 — RESUME
 # ============================================================
 
 render_html(
     """
-    <div class="section-heading">
+    <div class="section-title">
         1. Upload Your Resume
     </div>
 
@@ -576,21 +564,23 @@ render_html(
 
     <div class="upload-card">
 
-        <div class="upload-card-header">
+        <div class="upload-row">
 
             <div class="upload-icon">
                 📄
             </div>
 
-            <div class="upload-title">
-                Resume Document
+            <div>
+                <div class="upload-title">
+                    Resume Document
+                </div>
+
+                <div class="upload-description">
+                    Upload your resume and we will extract
+                    the text before analyzing it against the job.
+                </div>
             </div>
 
-        </div>
-
-        <div class="upload-description">
-            Your resume is processed locally for text extraction
-            before being analyzed against the job description.
         </div>
 
     </div>
@@ -621,9 +611,20 @@ if uploaded_file is not None:
         render_html(
             f"""
             <div class="file-status">
-                ✅ <strong>{html.escape(uploaded_file.name)}</strong>
-                &nbsp;·&nbsp;
-                {len(resume_text.split())} words extracted successfully
+
+                ✅
+
+                <span>
+                    <strong>
+                        {html.escape(uploaded_file.name)}
+                    </strong>
+
+                    &nbsp;·&nbsp;
+
+                    {len(resume_text.split())}
+                    words extracted successfully
+                </span>
+
             </div>
             """
         )
@@ -649,12 +650,12 @@ if uploaded_file is not None:
 
 
 # ============================================================
-# JOB DESCRIPTION
+# SECTION 2 — JOB DESCRIPTION
 # ============================================================
 
 render_html(
     """
-    <div class="section-heading">
+    <div class="section-title">
         2. Job Description
     </div>
 
@@ -680,18 +681,18 @@ job_description = st.text_area(
 
 
 # ============================================================
-# ANALYZE
+# SECTION 3 — ANALYZE
 # ============================================================
 
 render_html(
     """
-    <div class="section-heading">
+    <div class="section-title">
         3. Analyze Your Resume
     </div>
 
     <div class="section-description">
-        Groq will compare the extracted resume against the
-        specific job description and generate an evidence-based report.
+        Groq will compare your resume with the supplied job
+        description and create an evidence-based report.
     </div>
     """
 )
@@ -732,23 +733,19 @@ if analyze_clicked:
     else:
 
         with st.spinner(
-            "Analyzing your resume with AI..."
+            "Analyzing your resume with Groq..."
         ):
 
             try:
 
-                analysis_result = analyze_resume(
+                result = analyze_resume(
                     resume_text,
                     job_description,
                 )
 
                 st.session_state[
                     "analysis_result"
-                ] = analysis_result
-
-                st.success(
-                    "Analysis completed successfully!"
-                )
+                ] = result
 
             except AnalysisError as exc:
 
@@ -757,8 +754,8 @@ if analyze_clicked:
             except Exception:
 
                 st.error(
-                    "Something unexpected happened while analyzing "
-                    "your resume. Please try again."
+                    "Something unexpected happened while "
+                    "analyzing your resume. Please try again."
                 )
 
 
@@ -774,61 +771,87 @@ if "analysis_result" in st.session_state:
 
     st.divider()
 
-
-    # --------------------------------------------------------
-    # RESULTS HEADER
-    # --------------------------------------------------------
-
     render_html(
         """
-        <div class="section-heading">
+        <div class="section-title">
             Resume Analysis Results
         </div>
 
         <div class="section-description">
-            A recruiter-style analysis based specifically on
-            your resume and the supplied job description.
+            Recruiter-style analysis based on your resume
+            and the supplied job description.
         </div>
         """
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SCORE DASHBOARD
-    # --------------------------------------------------------
+    # ========================================================
 
-    score_columns = st.columns(4)
+    columns = st.columns(4)
 
-    with score_columns[0]:
+    with columns[0]:
 
-        show_score_card(
+        score_card(
             "Overall Score",
             result.overall_score,
-            result.overall_explanation,
         )
 
-    with score_columns[1]:
+        st.caption(
+            result.overall_explanation
+        )
 
-        show_score_card(
+        st.progress(
+            result.overall_score / 100
+        )
+
+
+    with columns[1]:
+
+        score_card(
             "Job Match",
             result.job_match.score,
-            result.job_match.explanation,
         )
 
-    with score_columns[2]:
+        st.caption(
+            result.job_match.explanation
+        )
 
-        show_score_card(
+        st.progress(
+            result.job_match.score / 100
+        )
+
+
+    with columns[2]:
+
+        score_card(
             "ATS Compatibility",
             result.ats_compatibility.score,
-            result.ats_compatibility.explanation,
         )
 
-    with score_columns[3]:
+        st.caption(
+            result.ats_compatibility.explanation
+        )
 
-        show_score_card(
+        st.progress(
+            result.ats_compatibility.score / 100
+        )
+
+
+    with columns[3]:
+
+        score_card(
             "Resume Quality",
             result.resume_quality.score,
-            result.resume_quality.explanation,
+        )
+
+        st.caption(
+            result.resume_quality.explanation
+        )
+
+        st.progress(
+            result.resume_quality.score / 100
         )
 
 
@@ -838,9 +861,9 @@ if "analysis_result" in st.session_state:
     )
 
 
-    # --------------------------------------------------------
-    # RESULT TABS
-    # --------------------------------------------------------
+    # ========================================================
+    # TABS
+    # ========================================================
 
     (
         skills_tab,
@@ -867,9 +890,9 @@ if "analysis_result" in st.session_state:
 
     with skills_tab:
 
-        matching_column, missing_column = st.columns(2)
+        left, right = st.columns(2)
 
-        with matching_column:
+        with left:
 
             render_html(
                 """
@@ -880,8 +903,8 @@ if "analysis_result" in st.session_state:
                     </div>
 
                     <div class="result-card-description">
-                        Skills present in your resume that
-                        are relevant to this job.
+                        Skills found in your resume that
+                        are relevant to the job.
                     </div>
 
                 </div>
@@ -908,7 +931,7 @@ if "analysis_result" in st.session_state:
                 )
 
 
-        with missing_column:
+        with right:
 
             render_html(
                 """
@@ -919,8 +942,8 @@ if "analysis_result" in st.session_state:
                     </div>
 
                     <div class="result-card-description">
-                        Important job requirements that are
-                        not clearly demonstrated in your resume.
+                        Important requirements that are not
+                        clearly demonstrated in your resume.
                     </div>
 
                 </div>
@@ -937,7 +960,7 @@ if "analysis_result" in st.session_state:
                     ):
 
                         st.markdown(
-                            get_badge_html(
+                            badge(
                                 item.importance
                             ),
                             unsafe_allow_html=True,
@@ -969,8 +992,8 @@ if "analysis_result" in st.session_state:
                 </div>
 
                 <div class="result-card-description">
-                    Relevant experience from your resume
-                    mapped to actual job requirements.
+                    Relevant experience mapped to actual
+                    requirements in the job description.
                 </div>
 
             </div>
@@ -1017,8 +1040,8 @@ if "analysis_result" in st.session_state:
                 </div>
 
                 <div class="result-card-description">
-                    Weaknesses that may reduce your match
-                    for this specific position.
+                    Weaknesses that may reduce your chances
+                    for this particular position.
                 </div>
 
             </div>
@@ -1035,7 +1058,7 @@ if "analysis_result" in st.session_state:
                 ):
 
                     st.markdown(
-                        get_badge_html(
+                        badge(
                             item.severity
                         ),
                         unsafe_allow_html=True,
@@ -1068,8 +1091,8 @@ if "analysis_result" in st.session_state:
                 </div>
 
                 <div class="result-card-description">
-                    Practical improvements you can make
-                    without exaggerating your qualifications.
+                    Practical and honest improvements you
+                    can make to strengthen your resume.
                 </div>
 
             </div>
@@ -1086,7 +1109,7 @@ if "analysis_result" in st.session_state:
                 ):
 
                     st.markdown(
-                        get_badge_html(
+                        badge(
                             item.priority
                         ),
                         unsafe_allow_html=True,
@@ -1117,53 +1140,43 @@ if "analysis_result" in st.session_state:
 
     with ats_tab:
 
-        keyword_columns = st.columns(2)
+        left, right = st.columns(2)
 
-        with keyword_columns[0]:
+        with left:
 
             render_html(
                 """
-                <div class="keyword-container">
+                <div class="keyword-box">
 
                     <div class="keyword-title">
                         ✅ Matched Keywords
                     </div>
 
-                """
-            )
-
-            display_keywords(
-                result.matched_keywords
-            )
-
-            render_html(
-                """
                 </div>
                 """
             )
 
+            keyword_pills(
+                result.matched_keywords
+            )
 
-        with keyword_columns[1]:
+
+        with right:
 
             render_html(
                 """
-                <div class="keyword-container">
+                <div class="keyword-box">
 
                     <div class="keyword-title">
                         ❌ Missing Keywords
                     </div>
 
-                """
-            )
-
-            display_keywords(
-                result.missing_keywords
-            )
-
-            render_html(
-                """
                 </div>
                 """
+            )
+
+            keyword_pills(
+                result.missing_keywords
             )
 
 
@@ -1193,35 +1206,13 @@ if "analysis_result" in st.session_state:
             """
         )
 
-
-        render_html(
-            """
-            <div class="result-card">
-
-                <div class="result-card-title">
-                    Overall Assessment
-                </div>
-
-            </div>
-            """
-        )
+        st.markdown("### Overall Assessment")
 
         st.write(
             result.overall_explanation
         )
 
-
-        render_html(
-            """
-            <div class="result-card">
-
-                <div class="result-card-title">
-                    Score Breakdown
-                </div>
-
-            </div>
-            """
-        )
+        st.markdown("### Score Breakdown")
 
         breakdown = [
             (
